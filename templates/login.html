@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card">
+    <h1>Anmelden</h1>
+    <p>Bitte mit E-Mail-Adresse und Passwort anmelden.</p>
+
+    <form method="post">
+        {{ form.csrf_token }}
+
+        <label for="email">E-Mail</label>
+        {{ form.email }}
+        {% for error in form.email.errors %}
+            <div class="field-error">{{ error }}</div>
+        {% endfor %}
+        <br>
+        <label for="password">Passwort</label>
+        {{ form.password }}
+        {% for error in form.password.errors %}
+            <div class="field-error">{{ error }}</div>
+        {% endfor %}
+        <br>
+        {{ form.submit }}
+    </form>
+    <br>
+    <a href="{{ url_for('register') }}">Neu Registrieren</a>
+</div>
+{% endblock %}

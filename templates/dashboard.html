@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card">
+    <h1>Dashboard</h1>
+    <p>Trainingsdatum buchen.</p>
+
+<form method="post" action="{{ url_for('add_booking') }}">
+    <input type="date" name="booking_date" min="{{ today }}" required>
+    <button>Buchen</button>
+</form><ul>{% for b in bookings %}<li>{{ b.booking_date }} <a href="/booking/delete/{{ b.id }}">Löschen</a></li>{% endfor %}</ul>
+</div>
+{% endblock %}

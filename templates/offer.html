@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card offer-intro">
+    <h1>Unser Angebot</h1>
+    <p>Trainiere gezielt, verbessere deine Ausdauer und finde Zeit für Erholung.</p>
+</div>
+
+<div class="offer-list">
+    <div class="offer-row">
+        <section class="card offer-card">
+            <h2>Krafttraining</h2>
+            <p>Baue Kraft auf und arbeite an deiner Fitness mit modernen Geräten und freien Gewichten.</p>
+        </section>
+        <img class="offer-image" src="{{ url_for('static', filename='img/strength.svg') }}" alt="Symbolbild für Krafttraining">
+    </div>
+
+    <div class="offer-row">
+        <img class="offer-image" src="{{ url_for('static', filename='img/endurance.svg') }}" alt="Symbolbild für Ausdauertraining">
+        <section class="card offer-card">
+            <h2>Ausdauertraining</h2>
+            <p>Verbessere deine Kondition mit Laufbändern, Fahrrädern, Crosstrainern und weiteren Geräten.</p>
+        </section>
+    </div>
+
+    <div class="offer-row">
+        <section class="card offer-card">
+            <h2>Wellness</h2>
+            <p>Entspanne nach dem Training und gönne deinem Körper eine wohltuende Auszeit.</p>
+        </section>
+        <img class="offer-image" src="{{ url_for('static', filename='img/wellness.svg') }}" alt="Symbolbild für Wellness">
+    </div>
+</div>
+
+<section class="card opening-hours">
+    <h2>365 Tage im Jahr geöffnet</h2>
+    <p>Wir freuen uns auf deinen Besuch!</p>
+</section>
+{% endblock %}

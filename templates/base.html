@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GitFit</title>
+    <link rel="shortcut icon" type="image/x-icon" href="{{ url_for('static', filename='img/favicon.svg') }}" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+<nav>
+    <div class="nav-container">
+        <img class="nav-logo" src="{{ url_for('static', filename='img/logo.svg') }}" alt="GitFit">
+        <a href="{{ url_for('offer') }}">Angebot</a>
+        {% if current_user.is_authenticated %}
+            <a href="{{ url_for('dashboard') }}">Dashboard</a>
+            <a href="{{ url_for('logout') }}">Logout</a>
+        {% else %}
+            <a href="{{ url_for('login') }}">Login</a>
+            <a href="{{ url_for('register') }}">Registrieren</a>
+        {% endif %}
+    </div>
+</nav>
+
+    <div class="container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-messages" role="status" aria-live="polite">
+                    {% for category, message in messages %}
+                        <div class="flash-message flash-{{ category }}">{{ message }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        {% block content %}
+        {% endblock %}
+    </div>
+
+    <footer>
+        <div class="footer-container">
+            <span>&copy; 2026 GitFit</span>
+            <a href="https://github.com/gallje98/GitFit" target="_blank" rel="noopener noreferrer">
+                <img src="{{ url_for('static', filename='img/github.svg') }}" alt="GitHub"> <span>Source Code</span>
+            </a>
+        </div>
+    </footer>
+</body>
+</html>

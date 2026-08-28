@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   viewBox="0 0 640 420"
+   role="img"
+   aria-labelledby="title"
+   version="1.1"
+   id="svg4"
+   sodipodi:docname="endurance.svg"
+   inkscape:version="1.4.2 (f4327f4, 2025-05-13)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs4" />
+  <sodipodi:namedview
+     id="namedview4"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:zoom="0.49118668"
+     inkscape:cx="380.71065"
+     inkscape:cy="27.484459"
+     inkscape:window-width="929"
+     inkscape:window-height="1211"
+     inkscape:window-x="13"
+     inkscape:window-y="80"
+     inkscape:window-maximized="0"
+     inkscape:current-layer="svg4" />
+  <title
+     id="title">Symbol für Ausdauertraining</title>
+  <rect
+     width="640"
+     height="420"
+     fill="#2563eb"
+     id="rect1"
+     style="fill:#f05f28;fill-opacity:1" />
+  <g
+     id="line"
+     transform="matrix(5.4495212,0,0,5.4495212,105.5464,10.836895)"
+     style="fill:none;stroke:#ffffff;stroke-opacity:1">
+    <path
+       id="circle2"
+       style="fill:none;stroke:#ffffff;stroke-width:2;stroke-miterlimit:10;stroke-opacity:1"
+       d="m 29.9688,13.0938 a 3,3 0 0 1 -3,3 3,3 0 0 1 -3,-3 3,3 0 0 1 3,-3 3,3 0 0 1 3,3 z" />
+    <path
+       fill="none"
+       stroke="#000000"
+       stroke-linecap="round"
+       stroke-linejoin="round"
+       stroke-width="2"
+       d="m 42,36 5.8535,8.3613 a 11.0249,11.0249 0 0 0 2.8692,2.6553 l 6.7216,3.9668 A 2.3633,2.3633 0 0 1 58.667,53.5 1.69,1.69 0 0 1 56.317,54.24 L 47.85,50.76 A 14.1043,14.1043 0 0 1 44.5053,48.6711 L 37,42"
+       id="path3-8"
+       style="fill:none;stroke:#ffffff;stroke-opacity:1" />
+    <path
+       fill="none"
+       stroke="#000000"
+       stroke-linecap="round"
+       stroke-linejoin="round"
+       stroke-width="2"
+       d="m 31.0839,31.5874 c 0,0 0.26,0.5937 0.5761,1.32 a 4.72,4.72 0 0 1 -0.3515,3.46 l -5.2343,6.9444 A 8.3233,8.3233 0 0 0 24.9727,47 l -0.1954,14 a 1.8486,1.8486 0 0 0 1.6846,2 2.1751,2.1751 0 0 0 1.9541,-1.9854 l 1.3418,-11.0292 a 6.789,6.789 0 0 1 1.6563,-3.3995 l 3.1718,-3.1718 c 0.7774,-0.7774 2.1055,-1.99 2.95,-2.6944 L 40.4639,38.28 A 4.8637,4.8637 0 0 0 42,35 v 0 c 0.2291,-1.9913 -2.9451,-5.7835 -3.4724,-6.7494 l -2.5217,-6.2574"
+       id="path4-8"
+       style="fill:none;stroke:#ffffff;stroke-opacity:1" />
+    <path
+       fill="none"
+       stroke="#000000"
+       stroke-linecap="round"
+       stroke-linejoin="round"
+       stroke-width="2"
+       d="m 35.9337,21.7988 c -1.5315,-4.06 -4.2931,-4.0317 -5.9649,-3.3818 A 3.859,3.859 0 0 0 27.6,22.251"
+       id="path5"
+       style="fill:none;stroke:#ffffff;stroke-opacity:1" />
+    <path
+       fill="none"
+       stroke="#000000"
+       stroke-linecap="round"
+       stroke-linejoin="round"
+       stroke-width="2"
+       d="m 30.9375,22 -1.4189,5.0771 A 2.7758,2.7758 0 0 1 27,29 h -7"
+       id="path6"
+       style="fill:none;stroke:#ffffff;stroke-opacity:1" />
+  </g>
+</svg>

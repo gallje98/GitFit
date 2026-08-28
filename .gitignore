@@ -1,0 +1,10 @@
+# Umgebungsvariablen und Geheimnisse
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
