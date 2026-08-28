@@ -285,6 +285,28 @@ a:hover {
     text-decoration: underline;
 }
 
+.table-wrapper {
+    overflow-x: auto;
+}
+
+.admin-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+.admin-table th,
+.admin-table td {
+    padding: 12px;
+    border-bottom: 1px solid #e2e8f0;
+    text-align: left;
+}
+
+.admin-table th {
+    color: var(--primary);
+    background-color: #f8fafc;
+}
+
 @media (max-width: 700px) {
     .nav-container {
         flex-wrap: wrap;

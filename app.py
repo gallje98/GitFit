@@ -1,7 +1,7 @@
 import os
 from datetime import datetime, date, timedelta
 from dotenv import load_dotenv
-from flask import (Flask, jsonify, render_template, redirect, url_for, flash, request)
+from flask import (Flask, jsonify, render_template, redirect, url_for, flash, request, abort)
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import (LoginManager, UserMixin, login_user, login_required, logout_user, current_user)
 from flask_jwt_extended import (JWTManager, create_access_token, get_jwt_identity, jwt_required)
@@ -61,6 +61,12 @@ class User(UserMixin, db.Model):
     password_hash = db.Column(
         db.String(255),
         nullable=False
+    )
+
+    is_admin = db.Column(
+        db.Boolean,
+        nullable=False,
+        default=False
     )
 
     bookings = db.relationship(
@@ -181,6 +187,22 @@ def dashboard():
         bookings=bookings,
         today=date.today().isoformat()
     )
+
+
+@app.route("/admin")
+@login_required
+def admin_dashboard():
+    if not current_user.is_admin:
+        abort(403)
+
+    bookings = (
+        Booking.query
+        .join(User)
+        .order_by(Booking.booking_date, Booking.id)
+        .all()
+    )
+
+    return render_template("admin.html", bookings=bookings)
 
 # --------------------------------------------------
 # Angebot Seite
@@ -310,6 +332,33 @@ def api_get_bookings():
     )
 
     return jsonify(bookings=[booking_to_dict(booking) for booking in bookings])
+
+
+@app.route("/api/admin/bookings", methods=["GET"])
+@jwt_required()
+def api_get_all_bookings():
+    admin = db.session.get(User, int(get_jwt_identity()))
+
+    if not admin or not admin.is_admin:
+        return jsonify(error="Admin-Berechtigung erforderlich."), 403
+
+    bookings = (
+        Booking.query
+        .join(User)
+        .order_by(Booking.booking_date, Booking.id)
+        .all()
+    )
+
+    return jsonify(
+        bookings=[
+            {
+                **booking_to_dict(booking),
+                "user_id": booking.user_id,
+                "user_email": booking.user.email,
+            }
+            for booking in bookings
+        ]
+    )
 
 # --------------------------------------------------
 
