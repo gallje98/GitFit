@@ -39,6 +39,8 @@ jwt = JWTManager(app)
 
 login_manager = LoginManager()
 login_manager.login_view = "login"
+login_manager.login_message = "Bitte anmelden um diese Seite aufzurufen."
+login_manager.login_message_category = "warning"
 login_manager.init_app(app)
 
 # --------------------------------------------------
