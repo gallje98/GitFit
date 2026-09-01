@@ -2,11 +2,17 @@
 {% block content %}
 <div class="card">
     <h1>Registrierung</h1>
-    <p>Bitte E-Mail-Adresse und Passwort angeben.</p>
+    <p>Bitte verwende einen Benutzernamen mit mindestens 3 Zeichen.</p>
 
     <form method="post">
         {{ form.csrf_token }}
 
+        <label for="username">Benutzername</label>
+        {{ form.username }}
+        {% for error in form.username.errors %}
+            <div class="field-error">{{ error }}</div>
+        {% endfor %}
+        <br>
         <label for="email">E-Mail</label>
         {{ form.email }}
         {% for error in form.email.errors %}

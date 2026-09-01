@@ -2,14 +2,14 @@
 {% block content %}
 <div class="card">
     <h1>Anmelden</h1>
-    <p>Bitte mit E-Mail-Adresse und Passwort anmelden.</p>
+    <p>Bitte mit Benutzername und Passwort anmelden.</p>
 
     <form method="post">
         {{ form.csrf_token }}
 
-        <label for="email">E-Mail</label>
-        {{ form.email }}
-        {% for error in form.email.errors %}
+        <label for="username">Benutzername</label>
+        {{ form.username }}
+        {% for error in form.username.errors %}
             <div class="field-error">{{ error }}</div>
         {% endfor %}
         <br>

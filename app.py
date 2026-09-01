@@ -6,8 +6,8 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_login import (LoginManager, UserMixin, login_user, login_required, logout_user, current_user)
 from flask_jwt_extended import (JWTManager, create_access_token, get_jwt_identity, jwt_required)
 from flask_wtf import FlaskForm
-from wtforms import (EmailField, PasswordField, SubmitField)
-from wtforms.validators import (DataRequired, Email, Length)
+from wtforms import (EmailField, PasswordField, StringField, SubmitField)
+from wtforms.validators import (DataRequired, Email, Length, ValidationError)
 from werkzeug.security import (generate_password_hash, check_password_hash)
 
 # --------------------------------------------------
@@ -51,6 +51,12 @@ class User(UserMixin, db.Model):
     __tablename__ = "users"
 
     id = db.Column(db.Integer, primary_key=True)
+
+    username = db.Column(
+        db.String(80),
+        unique=True,
+        nullable=False
+    )
 
     email = db.Column(
         db.String(255),
@@ -121,6 +127,14 @@ def load_user(user_id):
 # --------------------------------------------------
 
 class RegisterForm(FlaskForm):
+    username = StringField(
+        "Benutzername",
+        validators=[
+            DataRequired(),
+            Length(min=3, max=32)
+        ]
+    )
+
     email = EmailField(
         "E-Mail",
         validators=[
@@ -140,11 +154,11 @@ class RegisterForm(FlaskForm):
     submit = SubmitField("Registrieren")
 
 class LoginForm(FlaskForm):
-    email = EmailField(
-        "E-Mail",
+    username = StringField(
+        "Benutzername",
         validators=[
             DataRequired(),
-            Email()
+            Length(min=3, max=32)
         ]
     )
 
@@ -223,16 +237,26 @@ def register():
 
     if form.validate_on_submit():
 
-        existing_user = User.query.filter_by(
-            email=form.email.data.lower()
-        ).first()
+        normalized_username = form.username.data.strip()
+        normalized_email = form.email.data.lower().strip()
+
+        existing_user = (
+            User.query.filter(
+                (User.username == normalized_username) |
+                (User.email == normalized_email)
+            ).first()
+        )
 
         if existing_user:
-            flash("E-Mail-Adresse ist bereits registriert.", "danger")
+            if existing_user.username == normalized_username:
+                flash("Benutzername ist bereits registriert.", "danger")
+            else:
+                flash("E-Mail-Adresse ist bereits registriert.", "danger")
             return render_template("register.html", form=form)
 
         user = User(
-            email=form.email.data.lower(),
+            username=normalized_username,
+            email=normalized_email,
             # Passwörter werden nur als Hash gespeichert
             password_hash=generate_password_hash(
                 form.password.data
@@ -259,9 +283,10 @@ def login():
     form = LoginForm()
 
     if form.validate_on_submit():
+        username = form.username.data.strip()
 
         user = User.query.filter_by(
-            email=form.email.data.lower()
+            username=username
         ).first()
 
         if user and check_password_hash(
@@ -275,7 +300,7 @@ def login():
             )
 
         flash(
-            "Ungültige E-Mail oder Passwort.",
+            "Ungültiger Benutzername oder Passwort.",
             "danger"
         )
 
@@ -296,6 +321,7 @@ def logout():
         url_for("login")
     )
 
+
 # --------------------------------------------------
 # REST API
 # --------------------------------------------------
@@ -304,13 +330,13 @@ def logout():
 def api_login():
     # Die API verwendet JWT-Tokens anstelle der normalen Browser-Session
     data = request.get_json(silent=True) or {}
-    email = str(data.get("email", "")).strip().lower()
+    username = str(data.get("username", "")).strip()
     password = data.get("password", "")
 
-    user = User.query.filter_by(email=email).first()
+    user = User.query.filter_by(username=username).first()
 
     if not user or not check_password_hash(user.password_hash, password):
-        return jsonify(error="Ungültige E-Mail oder Passwort."), 401
+        return jsonify(error="Ungültiger Benutzername oder Passwort."), 401
 
     return jsonify(
         access_token=create_access_token(identity=str(user.id)),
