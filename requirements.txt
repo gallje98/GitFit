@@ -1,10 +1,10 @@
 Flask
 Flask-SQLAlchemy
 Flask-Login
-Flask-JWT-Extended
 Flask-WTF
 WTForms
 email-validator
 PyMySQL
+python-dotenv
 cryptography
 gunicorn

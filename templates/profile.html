@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card">
+    <h1>Profil</h1>
+
+    <div class="profile-grid">
+        <div>
+            <label>Benutzername</label>
+            <p>{{ user.username }}</p>
+        </div>
+
+        <div>
+            <label>E-Mail</label>
+            <p>{{ user.email }}</p>
+        </div>
+
+        <div>
+            <label>Abotyp</label>
+            <p>{{ user.subscription_label }}</p>
+        </div>
+
+        <div>
+            <label>Abo-Laufzeit</label>
+            <p>
+                {% if user.subscription_start and user.subscription_end %}
+                    {{ user.subscription_start.strftime('%d.%m.%Y') }} – {{ user.subscription_end.strftime('%d.%m.%Y') }}
+                {% else %}
+                    Kein aktives Abo
+                {% endif %}
+            </p>
+        </div>
+
+        <div>
+            <label>Zahlungsstatus</label>
+            <p>{{ user.payment_status_label }}</p>
+        </div>
+    </div>
+
+    <form method="post" action="{{ url_for('profile') }}">
+        <h2>Passwort ändern</h2>
+        <label for="new_password">Neues Passwort</label>
+        <input id="new_password" type="password" name="new_password" minlength="8" placeholder="Mindestens 8 Zeichen" required>
+        <button type="submit">Passwort speichern</button>
+    </form>
+
+</div>
+{% endblock %}

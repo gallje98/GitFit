@@ -2,11 +2,39 @@
 {% block content %}
 <div class="card">
     <h1>Dashboard</h1>
-    <p>Trainingsdatum buchen.</p>
+    <p>Verfügbare Events buchen.</p>
 
-<form method="post" action="{{ url_for('add_booking') }}">
-    <input type="date" name="booking_date" min="{{ today }}" required>
-    <button>Buchen</button>
-</form><ul>{% for b in bookings %}<li>{{ b.booking_date }} <a href="/booking/delete/{{ b.id }}">Löschen</a></li>{% endfor %}</ul>
+    {% if events %}
+        <form method="post" action="{{ url_for('book_event') }}">
+            <label for="event_id">Event auswählen</label>
+            <select id="event_id" name="event_id" required>
+                {% for event in events %}
+                    {% set free_slots = event.max_participants - event.booked_count %}
+                    <option value="{{ event.id }}" {% if free_slots <= 0 %}disabled{% endif %}>
+                        {{ event.title }} - {{ event.event_date.strftime('%d.%m.%Y') }} ({{ free_slots }} frei)
+                    </option>
+                {% endfor %}
+            </select>
+            <button type="submit">Event buchen</button>
+        </form>
+    {% else %}
+        <p>Derzeit sind keine Events geplant.</p>
+    {% endif %}
+
+    <div>
+        <h2>Meine Anmeldungen</h2>
+        {% if user_event_bookings %}
+            <ul>
+                {% for booking in user_event_bookings %}
+                    <li>
+                        <span>{{ booking.event.title }} - {{ booking.event.event_date.strftime('%d.%m.%Y') }}</span>
+                        <a href="{{ url_for('cancel_event', event_booking_id=booking.id) }}">Löschen</a>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>Du bist noch für kein Event angemeldet.</p>
+        {% endif %}
+    </div>
 </div>
 {% endblock %}

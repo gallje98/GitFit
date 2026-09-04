@@ -1,7 +1,6 @@
  :root {
     --primary: #202068;
     --accent: #2563eb;
-    --background: #f4f7fb;
     --text: #1f2937;
     --muted: #64748b;
     --radius: 12px;
@@ -140,7 +139,6 @@ footer img {
 
 .offer-card h2 {
     color: var(--primary);
-    margin-bottom: 10px;
 }
 
 .opening-hours {
@@ -152,7 +150,6 @@ footer img {
 
 .opening-hours h2 {
     color: white;
-    margin-bottom: 8px;
 }
 
 .opening-hours p {
@@ -202,7 +199,8 @@ footer img {
 h1,
 h2,
 h3 {
-    margin-top: 0;
+    margin-top: 1rem;
+    margin-bottom: 0.5rem;
     color: #222;
 }
 
@@ -221,7 +219,6 @@ input[type="text"] {
     margin-bottom: 15px;
     border: 1px solid #cbd5e1;
     border-radius: 8px;
-    box-sizing: border-box;
     background-color: #fff;
     transition: border-color 0.2s, box-shadow 0.2s;
 }
@@ -231,6 +228,29 @@ input:focus {
     border-color: var(--accent);
     box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
 }
+
+
+/* API Token */
+.api-token-box {
+    margin-top: 1.5rem;
+}
+
+.api-token-box label {
+    display: block;
+    font-size: 0.75rem;
+    font-weight: 600;
+    margin-bottom: 0.4rem;
+    color: var(--muted);
+}
+
+.api-token-input {
+    font-size: 0.72rem;
+    padding: 10px 12px;
+    background: #f8fafc;
+    color: var(--text);
+    font-family: "Consolas", "SFMono-Regular", monospace;
+}
+
 
 /* Buttons */
 
@@ -247,6 +267,15 @@ input[type="submit"] {
     transition: background-color 0.2s, transform 0.2s, box-shadow 0.2s;
 }
 
+select {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 15px;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    background-color: #fff;
+}
+
 button:hover,
 input[type="submit"]:hover {
     background-color: #1d4ed8;
@@ -256,13 +285,11 @@ input[type="submit"]:hover {
 
 /* Terminliste */
 
-.booking-list,
 .card > ul {
     list-style: none;
     padding: 0;
 }
 
-.booking-list li,
 .card > ul li {
     background: white;
     padding: 12px;
@@ -283,6 +310,58 @@ a {
 
 a:hover {
     text-decoration: underline;
+}
+
+.pricing {
+    margin-top: 20px;
+}
+
+.pricing ul {
+    list-style: none;
+    padding: 0;
+    margin: 1rem 0;
+}
+
+.pricing li {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.admin-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.profile-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(220px, 1fr));
+    gap: 1rem;
+}
+
+.profile-grid label {
+    display: block;
+    font-weight: 600;
+    color: var(--muted);
+    margin-bottom: 0.3rem;
+}
+
+.disabled-input {
+    background: #f1f5f9;
+    color: #64748b;
+    cursor: not-allowed;
+    opacity: 0.8;
+}
+
+.profile-grid p {
+    margin: 0;
+    padding: 0.8rem 0.9rem;
+    min-height: 3.2rem;
+    background: #f8fafc;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
 }
 
 .table-wrapper {

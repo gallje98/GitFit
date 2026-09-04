@@ -2,31 +2,234 @@
 {% block content %}
 <div class="card">
     <h1>Admin-Dashboard</h1>
-    <p>Alle gebuchten Trainingstermine</p>
+    <p>Kontoverwaltung, Abo-Laufzeit, Zahlungsstatus und Events</p>
 
-    {% if bookings %}
+    <section>
+        <h2>Neues Event anlegen</h2>
+        <form method="post" action="{{ url_for('admin_add_event') }}">
+            <label>
+                Event-Titel
+                <input type="text" name="title" placeholder="z.B. Hot Yoga" required>
+            </label>
+
+            <label>
+                Datum
+                <input type="date" name="event_date" required>
+            </label>
+
+            <label>
+                Plätze
+                <input type="number" name="max_participants" min="1" value="8" required>
+            </label>
+
+            <button type="submit">Event speichern</button>
+        </form>
+    </section>
+
+    {% if events %}
+        <section>
+            <h2>Verfügbare Events</h2>
+            <div class="table-wrapper">
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>Event</th>
+                            <th>Datum</th>
+                            <th>Plätze</th>
+                            <th>Belegt</th>
+                            <th>Aktion</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for event in events %}
+                        <tr>
+                            <td>{{ event.title }}</td>
+                            <td>{{ event.event_date.strftime('%d.%m.%Y') }}</td>
+                            <td>{{ event.max_participants }}</td>
+                            <td>{{ event.booked_count }}</td>
+                            <td>
+                                <form method="post" action="{{ url_for('admin_delete_event', event_id=event.id) }}" onsubmit="return confirm('Event wirklich löschen?');">
+                                    <button type="submit">Löschen</button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    {% endif %}
+
+    <section>
+        <h2>Event-Anmeldungen</h2>
+        {% if event_bookings %}
+        <div class="table-wrapper">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>Benutzer</th>
+                        <th>Event</th>
+                        <th>Datum</th>
+                        <th>Angemeldet am</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for booking in event_bookings %}
+                    <tr>
+                        <td>{{ booking.user.username }}</td>
+                        <td>{{ booking.event.title }}</td>
+                        <td>{{ booking.event.event_date.strftime('%d.%m.%Y') }}</td>
+                        <td>{{ booking.created_at.strftime('%d.%m.%Y %H:%M') }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <p>Noch keine Event-Anmeldungen vorhanden.</p>
+        {% endif %}
+    </section>
+</div>
+
+<div class="card">
+    {% if users %}
+        <section>
+            <h2>Benutzer bearbeiten (Passwort, Abo, Zahlung)</h2>
+            <form method="get" action="{{ url_for('admin_dashboard') }}">
+                <label>
+                    Benutzer
+                    <select name="user_id" onchange="this.form.submit()">
+                        <option value="">Bitte wählen</option>
+                        {% for user in users %}
+                            <option value="{{ user.id }}" {% if selected_user and selected_user.id == user.id %}selected{% endif %}>{{ user.username }} ({{ user.email }})</option>
+                        {% endfor %}
+                    </select>
+                </label>
+            </form>
+        </section>
+
+        {% if selected_user %}
+        <section>
+            <h2>{{ selected_user.username }} ({{ selected_user.email }})</h2>
+            <form method="post" action="{{ url_for('admin_update_user', user_id=selected_user.id) }}">
+                <div class="admin-grid">
+                    <label>
+                        Passwort ändern
+                        <input type="password" name="password" placeholder="Neues Passwort" autocomplete="new-password">
+                    </label>
+
+                    <label>
+                        Zahlungsstatus
+                        <select name="payment_status" id="payment_status">
+                            <option value="" {% if not selected_user.payment_status %}selected{% endif %}></option>
+                            <option value="pending" {% if selected_user.payment_status == 'pending' %}selected{% endif %}>Pendent</option>
+                            <option value="paid" {% if selected_user.payment_status == 'paid' %}selected{% endif %}>Bezahlt</option>
+                        </select>
+                    </label>
+
+                    <label>
+                        Abo-Typ
+                        <select name="subscription_type" id="subscription_type">
+                            <option value="none" {% if selected_user.subscription_type == 'none' %}selected{% endif %}>Kein Abo</option>
+                            <option value="monthly" {% if selected_user.subscription_type == 'monthly' %}selected{% endif %}>Monatsabo</option>
+                            <option value="yearly" {% if selected_user.subscription_type == 'yearly' %}selected{% endif %}>Jahresabo</option>
+                        </select>
+                    </label>
+
+                    <label>
+                        Abo-Laufzeit Start
+                        <input type="date" name="subscription_start" id="subscription_start" value="{{ selected_user.subscription_start.isoformat() if selected_user.subscription_start else (today if selected_user.subscription_type in ['monthly', 'yearly'] else '') }}">
+                    </label>
+
+                    <label>
+                        Abo-Laufzeit Ende
+                        <input type="date" name="subscription_end" id="subscription_end" value="{{ selected_user.subscription_end.isoformat() if selected_user.subscription_end else '' }}" readonly {% if selected_user.subscription_type in ['monthly', 'yearly'] %}class="disabled-input"{% endif %}>
+                    </label>
+                </div>
+                
+                <!-- Hinweis: Dieses Skript wurde mit GitHub Copilot generiert. Es berechnet das Abo-Enddatum anhand des gewählten Abo-Typs und Startdatums und aktualisiert damit das Enddatum-Feld. -->
+                <script>
+                    const typeInput = document.getElementById('subscription_type');
+                    const paymentInput = document.getElementById('payment_status');
+                    const startInput = document.getElementById('subscription_start');
+                    const endInput = document.getElementById('subscription_end');
+
+                    function updateEndDate() {
+                        if (!typeInput || !startInput || !endInput || !startInput.value) {
+                            return;
+                        }
+
+                        const start = new Date(startInput.value + 'T00:00:00');
+                        const days = typeInput.value === 'monthly' ? 31 : 365;
+                        const end = new Date(start);
+                        end.setDate(end.getDate() + days);
+
+                        const yyyy = end.getFullYear();
+                        const mm = String(end.getMonth() + 1).padStart(2, '0');
+                        const dd = String(end.getDate()).padStart(2, '0');
+
+                        endInput.value = `${yyyy}-${mm}-${dd}`;
+                    }
+
+                    function updateSubscriptionFields(subscriptionChanged = false) {
+                        if (!typeInput || !paymentInput || !startInput || !endInput) {
+                            return;
+                        }
+
+                        if (['monthly', 'yearly'].includes(typeInput.value)) {
+                            if (subscriptionChanged || !paymentInput.value) {
+                                paymentInput.value = 'pending';
+                            }
+                            if (!startInput.value) {
+                                startInput.value = '{{ today }}';
+                            }
+                            updateEndDate();
+                        } else {
+                            paymentInput.value = '';
+                            startInput.value = '';
+                            endInput.value = '';
+                        }
+                    }
+
+                    typeInput.addEventListener('change', () => updateSubscriptionFields(true));
+                    startInput.addEventListener('change', updateEndDate);
+                    updateSubscriptionFields();
+                </script>
+
+                <button type="submit">Speichern</button>
+            </form>
+        </section>
+        {% endif %}
+    {% else %}
+        <p>Noch keine Benutzer vorhanden.</p>
+    {% endif %}
+</div>
+
+<div class="card">
+    <h2>Pendente Zahlungen</h2>
+    {% if pending_payments %}
     <div class="table-wrapper">
         <table class="admin-table">
             <thead>
                 <tr>
                     <th>Benutzer</th>
-                    <th>Termin</th>
-                    <th>Gebucht am</th>
+                    <th>E-Mail</th>
+                    <th>Abo</th>
                 </tr>
             </thead>
             <tbody>
-                {% for booking in bookings %}
+                {% for user in pending_payments %}
                 <tr>
-                    <td>{{ booking.user.email }}</td>
-                    <td>{{ booking.booking_date.strftime('%d.%m.%Y') }}</td>
-                    <td>{{ booking.created_at.strftime('%d.%m.%Y %H:%M') }}</td>
+                    <td>{{ user.username }}</td>
+                    <td>{{ user.email }}</td>
+                    <td>{{ user.subscription_label }}</td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
     </div>
     {% else %}
-    <p>Noch keine Buchungen vorhanden.</p>
+    <p>Keine pendenten Zahlungen vorhanden.</p>
     {% endif %}
 </div>
 {% endblock %}
