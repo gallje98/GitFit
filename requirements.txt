@@ -6,5 +6,4 @@ WTForms
 email-validator
 PyMySQL
 python-dotenv
-cryptography
 gunicorn
