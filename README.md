@@ -14,7 +14,7 @@ Benötigt eine MariaDB. Die Zugangsdaten und der API-Key werden über eine `.env
 
 ### Admin-Zugriff
 
-Administratoren können im Browser unter `/admin` Benutzer, Events und pendente Zahlungen verwalten. Für externe Clients stehen die geschützten Endpunkte `GET /api/admin/users/pending-payments` und `GET /api/admin/events` zur Verfügung.
+Administratoren können im Browser unter `/admin` Benutzer, Events und ausstehende Zahlungen verwalten. Für externe Clients stehen die geschützten Endpunkte `GET /api/admin/users/pending-payments` und `GET /api/admin/events` zur Verfügung.
 
 Die Berechtigung wird ausschliesslich über das Feld `is_admin` in der Datenbank vergeben. Es gibt keine Weboberfläche zum Erstellen oder Ändern von Admin-Benutzern. Für neue Installationen kann ein Benutzer nach der Registrierung direkt in MariaDB zum Admin gemacht werden:
 
@@ -37,13 +37,17 @@ Für `/admin` ist eine normale Browser-Anmeldung erforderlich. Für die API-Endp
 
 Die API stellt zwei geschützte Admin-Abfragen bereit. Der statische API-Key wird nur auf dem Server in der `.env`-Datei gespeichert und muss im Header übergeben werden:
 
-### `GET https://lab11.ifalabs.org/api/admin/users/pending-payments`
+### `GET /api/admin/users/pending-payments`
+
+Ruft alle Benutzer ab, deren Zahlungsstatus noch ausstehend ist. Die Antwort enthält unter anderem Benutzername, E-Mail-Adresse, Abotyp sowie Beginn und Ende des Abonnements.
 
 ```bash
 curl https://lab11.ifalabs.org/api/admin/users/pending-payments -H "X-API-Key: <ADMIN_API_KEY>"
 ```
 
-### `GET https://lab11.ifalabs.org/api/admin/events`
+### `GET /api/admin/events`
+
+Ruft alle Events mit Datum, maximaler Teilnehmerzahl und aktueller Belegung ab. Zusätzlich werden die zugehörigen Buchungen inklusive Benutzername, E-Mail-Adresse und Buchungszeitpunkt ausgegeben.
 
 ```bash
 curl https://lab11.ifalabs.org/api/admin/events -H "X-API-Key: <ADMIN_API_KEY>"
