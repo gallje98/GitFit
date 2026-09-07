@@ -1,4 +1,4 @@
-# GitFit
+# 🦾 GitFit
 
 Flask-Webapp zur Registrierung, Anmeldung und Verwaltung von Events.
 
