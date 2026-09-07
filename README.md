@@ -95,9 +95,3 @@ Ruft alle Events mit Datum, maximaler Teilnehmerzahl und aktueller Belegung ab. 
 ```bash
 curl https://lab11.ifalabs.org/api/admin/events -H "X-API-Key: <ADMIN_API_KEY>"
 ```
-
-<<<<<<< HEAD
-Nur Anfragen mit dem korrekten API-Key können diese Endpunkte verwenden. Der Key läuft nicht automatisch ab und kann durch Änderung der `.env`-Variable ersetzt werden. 
-=======
-Nur Anfragen mit dem korrekten API-Key können diese Endpunkte verwenden. Der Key läuft nicht automatisch ab und kann durch Änderung der `.env`-Variable ersetzt werden. 
->>>>>>> 047241a (Veraltete Bookings entfernen und Dokumentation erweitert)
