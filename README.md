@@ -45,7 +45,7 @@ DB_NAME=gitfit
 Nach dem Erstellen der Datenbank wird das aktuelle Schema einmalig ausgeführt:
 
 ```bash
-mariadb -u gitfit_user -p gitfit < schema.sql
+mariadb -u root -p gitfit < schema.sql
 ```
 
 Das Datenmodell verwendet die Tabellen `users`, `events` und `event_bookings`.
