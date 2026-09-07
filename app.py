@@ -43,10 +43,11 @@ login_manager.login_message_category = "warning"
 login_manager.init_app(app)
 
 # --------------------------------------------------
-# Datenbankmodelle für Benutzer und Trainingsbuchungen
+# Datenbankmodelle für Benutzer und Eventbuchungen
 # --------------------------------------------------
 
 class User(UserMixin, db.Model):
+    # Speichert Kontodaten, Administratorrechte und den aktuellen Abo-Status.
     __tablename__ = "users"
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True, nullable=False)
@@ -57,11 +58,11 @@ class User(UserMixin, db.Model):
     subscription_type = db.Column(db.String(30), nullable=False, default="none")
     subscription_start = db.Column(db.Date, nullable=True)
     subscription_end = db.Column(db.Date, nullable=True)
-    bookings = db.relationship("Booking", backref="user", cascade="all, delete-orphan", lazy=True)
     event_bookings = db.relationship("EventBooking", backref="user", cascade="all, delete-orphan", lazy=True)
 
     @property
     def payment_status_label(self):
+        # Bereitet den internen Zahlungsstatus für die Anzeige im Frontend auf.
         if self.subscription_type == "none" or not self.payment_status:
             return ""
         if self.payment_status == "paid":
@@ -72,6 +73,7 @@ class User(UserMixin, db.Model):
 
     @property
     def subscription_label(self):
+        # Übersetzt die technischen Abo-Werte in verständliche Bezeichnungen.
         labels = {
             "none": "Kein Abo",
             "monthly": "Monatsabo",
@@ -82,6 +84,7 @@ class User(UserMixin, db.Model):
 
     @property
     def has_active_subscription(self):
+        # Ein Abo ist nur gültig, wenn es bezahlt und noch nicht abgelaufen ist.
         if self.subscription_type not in {"monthly", "yearly"}:
             return False
         if self.payment_status != "paid":
@@ -90,24 +93,8 @@ class User(UserMixin, db.Model):
             return False
         return self.subscription_end >= date.today()
 
-class Booking(db.Model):
-    __tablename__ = "bookings"
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
-    booking_date = db.Column(db.Date, nullable=False)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
-
-    __table_args__ = (
-        # Verhindert, dass ein Benutzer denselben Termin mehrfach bucht
-        db.UniqueConstraint(
-            "user_id",
-            "booking_date",
-            name="uq_user_date"
-        ),
-    )
-
-
 class Event(db.Model):
+    # Veranstaltungen mit einer begrenzten Anzahl an Teilnehmerplätzen.
     __tablename__ = "events"
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(255), nullable=False)
@@ -118,18 +105,22 @@ class Event(db.Model):
 
     @property
     def booked_count(self):
+        # Anzahl der aktuell registrierten Teilnehmer.
         return len(self.bookings)
 
     @property
     def free_slots(self):
+        # Freie Plätze dürfen niemals als negative Zahl angezeigt werden.
         return max(self.max_participants - self.booked_count, 0)
 
     @property
     def is_full(self):
+        # Wird vor einer neuen Eventbuchung zur Kapazitätsprüfung verwendet.
         return self.booked_count >= self.max_participants
 
 
 class EventBooking(db.Model):
+    # Verknüpft einen Benutzer mit einem Event.
     __tablename__ = "event_bookings"
     id = db.Column(db.Integer, primary_key=True)
     event_id = db.Column(db.Integer, db.ForeignKey("events.id"), nullable=False)
@@ -199,16 +190,8 @@ class LoginForm(FlaskForm):
     submit = SubmitField("Anmelden")
 
 
-def booking_to_dict(booking):
-    # Wandelt eine Buchung in ein JSON-kompatibles Objekt für die API um
-    return {
-        "id": booking.id,
-        "booking_date": booking.booking_date.isoformat(),
-        "created_at": booking.created_at.isoformat(),
-    }
-
-
 def parse_date(value):
+    # Wandelt ein HTML-Datumsfeld sicher in ein Python-Datum um.
     if not value:
         return None
     try:
@@ -218,6 +201,7 @@ def parse_date(value):
 
 
 def require_admin_api_key():
+    # Schützt die externen Admin-Endpunkte mit dem Schlüssel aus der .env-Datei.
     provided_key = request.headers.get("X-API-Key", "")
     if not ADMIN_API_KEY or not hmac.compare_digest(provided_key, ADMIN_API_KEY):
         return jsonify(error="Ungültiger oder fehlender API-Key."), 401
@@ -240,6 +224,7 @@ def calculate_subscription_end(start_date, subscription_type):
 @app.route("/")
 @login_required
 def dashboard():
+    # Lädt kommende Events und die Eventanmeldungen des eingeloggten Benutzers.
     events = (
         Event.query
         .filter(Event.event_date >= date.today())
@@ -266,6 +251,7 @@ def dashboard():
 @app.route("/admin")
 @login_required
 def admin_dashboard():
+    # Zeigt Admins alle Benutzer, Events und offenen Zahlungen.
     if not current_user.is_admin:
         abort(403)
 
@@ -293,6 +279,7 @@ def admin_dashboard():
 @app.route("/admin/user/<int:user_id>/update", methods=["POST"])
 @login_required
 def admin_update_user(user_id):
+    # Aktualisiert Passwort, Abo und Zahlungsstatus eines Benutzers.
     if not current_user.is_admin:
         abort(403)
 
@@ -335,6 +322,7 @@ def admin_update_user(user_id):
 @app.route("/profile", methods=["GET", "POST"])
 @login_required
 def profile():
+    # Zeigt das eigene Profil und verarbeitet eine Passwortänderung.
     if request.method == "POST":
         new_password = request.form.get("new_password", "").strip()
         if not new_password:
@@ -356,6 +344,7 @@ def profile():
 @app.route("/admin/event/add", methods=["POST"])
 @login_required
 def admin_add_event():
+    # Prüft die Eingaben und erstellt ein neues Event.
     if not current_user.is_admin:
         abort(403)
 
@@ -398,6 +387,7 @@ def admin_add_event():
 @app.route("/admin/event/<int:event_id>/delete", methods=["POST"])
 @login_required
 def admin_delete_event(event_id):
+    # Löscht ein Event inklusive der zugehörigen Anmeldungen.
     if not current_user.is_admin:
         abort(403)
 
@@ -414,6 +404,7 @@ def admin_delete_event(event_id):
 @app.route("/event/book", methods=["POST"])
 @login_required
 def book_event():
+    # Meldet den aktuellen Benutzer für ein Event mit freien Plätzen an.
     event_id = request.form.get("event_id", type=int)
     if event_id is None:
         flash("Bitte ein Event auswählen.", "danger")
@@ -444,6 +435,7 @@ def book_event():
 @app.route("/event/cancel/<int:event_booking_id>")
 @login_required
 def cancel_event(event_booking_id):
+    # Entfernt nur die eigene Anmeldung von einem Event.
     booking = EventBooking.query.filter_by(id=event_booking_id, user_id=current_user.id).first_or_404()
     db.session.delete(booking)
     db.session.commit()
@@ -456,6 +448,7 @@ def cancel_event(event_booking_id):
 
 @app.route("/angebot")
 def offer():
+    # Öffentliche Seite mit den verfügbaren Angeboten.
     return render_template("offer.html")
 
 # --------------------------------------------------
@@ -464,6 +457,7 @@ def offer():
 
 @app.route("/register", methods=["GET", "POST"])
 def register():
+    # Validiert neue Konten und speichert Passwörter ausschliesslich als Hash.
 
     form = RegisterForm()
 
@@ -511,6 +505,7 @@ def register():
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
+    # Prüft die Anmeldedaten und startet eine Flask-Login-Sitzung.
 
     form = LoginForm()
 
@@ -546,6 +541,7 @@ def login():
 @app.route("/logout")
 @login_required
 def logout():
+    # Beendet die aktuelle Benutzersitzung.
 
     logout_user()
 
@@ -560,6 +556,7 @@ def logout():
 
 @app.route("/api/admin/users/pending-payments", methods=["GET"])
 def api_admin_pending_payments():
+    # Liefert Benutzer mit noch nicht bestätigter Zahlung als JSON zurück.
     api_key_error = require_admin_api_key()
     if api_key_error:
         return api_key_error
@@ -589,6 +586,7 @@ def api_admin_pending_payments():
 
 @app.route("/api/admin/events", methods=["GET"])
 def api_admin_events():
+    # Liefert Events und die zugehörigen Teilnehmer für externe Clients.
     api_key_error = require_admin_api_key()
     if api_key_error:
         return api_key_error
@@ -618,94 +616,3 @@ def api_admin_events():
         ]
     )
 
-
-# --------------------------------------------------
-
-@app.route("/booking/add", methods=["POST"])
-@login_required
-def add_booking():
-
-    booking_date_str = request.form.get(
-        "booking_date"
-    )
-
-    try:
-        booking_date = datetime.strptime(
-            booking_date_str,
-            "%Y-%m-%d"
-        ).date()
-
-    except Exception:
-        flash("Ungültiges Datum.", "danger")
-        return redirect(url_for("dashboard"))
-
-    today = date.today()
-    max_date = today + timedelta(days=120)
-
-    # Buchungen sind nur ab heute und höchstens 120 Tage im Voraus möglich
-    if booking_date < today:
-        flash(
-            "Keine Termine in der Vergangenheit erlaubt.",
-            "danger"
-        )
-        return redirect(url_for("dashboard"))
-
-    if booking_date > max_date:
-        flash(
-            "Termine nur 4 Monate (120 Tage) im Voraus erlaubt.",
-            "danger"
-        )
-        return redirect(url_for("dashboard"))
-
-    existing = Booking.query.filter_by(
-        user_id=current_user.id,
-        booking_date=booking_date
-    ).first()
-
-    if existing:
-        flash(
-            "Dieser Termin wurde bereits gebucht.",
-            "warning"
-        )
-        return redirect(url_for("dashboard"))
-
-    booking = Booking(
-        user_id=current_user.id,
-        booking_date=booking_date
-    )
-
-    db.session.add(booking)
-    db.session.commit()
-
-    flash(
-        "Termin wurde gespeichert.",
-        "success"
-    )
-
-    return redirect(
-        url_for("dashboard")
-    )
-
-# --------------------------------------------------
-
-@app.route("/booking/delete/<int:booking_id>")
-@login_required
-def delete_booking(booking_id):
-
-    # Die Benutzer-ID verhindert, dass fremde Buchungen gelöscht werden können
-    booking = Booking.query.filter_by(
-        id=booking_id,
-        user_id=current_user.id
-    ).first_or_404()
-
-    db.session.delete(booking)
-    db.session.commit()
-
-    flash(
-        "Termin gelöscht.",
-        "success"
-    )
-
-    return redirect(
-        url_for("dashboard")
-    )
