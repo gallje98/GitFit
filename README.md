@@ -67,13 +67,6 @@ SET is_admin = TRUE
 WHERE email = 'admin@beispiel.ch';
 ```
 
-Bei einer bestehenden Datenbank muss die neue Spalte einmalig ergänzt werden:
-
-```sql
-ALTER TABLE users
-ADD COLUMN is_admin BOOLEAN NOT NULL DEFAULT FALSE;
-```
-
 Für `/admin` ist eine normale Browser-Anmeldung erforderlich. Für die API-Endpunkte muss der statische API-Key als `X-API-Key`-Header übergeben werden.
 
 ## API-Schnittstelle
